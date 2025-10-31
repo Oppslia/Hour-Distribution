@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hour Distribution</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f4f4f4;
+        }
+
+        .container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            max-width: 500px;
+            margin: auto;
+        }
+
+        .form-group {
+            max-width: 200px;
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 15px;
+            width: 100%;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        .form-group input[type="text"],
+        .form-group input[type="number"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #c5c5c5;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        button {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        .added-field {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+            gap: 10px;
+        }
+
+        .added-field input {
+            flex-grow: 1;
+        }
+
+        .summary-section {
+            /* display:flex; */
+            flex-direction: row;
+            align-items: start;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+
+        .summary-section h2 {
+            margin-top: 0;
+            color: #333;
+        }
+
+        .summary-section p {
+            margin-bottom: 5px;
+        }
+
+        .summary-section strong {
+            color: #007bff;
+        }
+
+        .chart-section {
+            width: 100%
+        }
+        
+        .project-section {
+            width: 100%;
+        }
+
+        
+       .edit-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .edit-project-name-container {
+            flex: 1 1 150px;
+            min-width: 150px;
+        }
+
+        .edit-projectHours {
+            padding: .5em 1em;
+            width: auto;
+            max-width: 80px;
+            height: 38px;
+            box-sizing: border-box;
+            border: 1px solid #c5c5c5;
+            border-radius: 4px;
+        }
+
+        .edit-projectName {
+            padding: .5em 1em;
+            width: 100%;
+            height: 38px;
+            box-sizing: border-box;
+            border: 1px solid #c5c5c5;
+            border-radius: 4px;
+        }
+
+        .edit-button-container, .edit-input-container {
+            display: flex;
+            flex-direction: row;
+            gap: 10px;
+            width: auto;
+        }
+
+        .edit-input-container input {
+            padding: .5em 1em;
+            width: auto;
+            max-width: 75px;
+            height: 38px;
+            box-sizing: border-box;
+            border: 1px solid #c5c5c5;
+            border-radius: 4px;
+        }
+
+        .edit-button-container button {
+            width: auto;
+            max-width: 200px;
+        }
+
+        .project-input-group {
+            display:flex;
+            flex-wrap:  wrap;
+            flex-direction: row;
+            gap: 10px;
+            margin-bottom: 15px;
+            max-width: 400px;
+
+        }
+
+        .project-input-group input {
+            padding: .5em 1em;
+            width: 100%;
+            max-width: 100%;
+            height: 38px;
+            box-sizing: border-box;
+            border: 1px solid #c5c5c5;
+            border-radius: 4px;
+        }
+
+        .project-input-group input:not(#projectName) {
+            max-width: 85px;
+        }
+
+        .project-name-container, .hours-field-submit-button-container {
+            display: flex;
+            gap: 10px;
+        }
+
+        .project-name-container {
+            width: 100%;
+            max-width: 200px;
+        }
+
+        .project-list:has(.editing) li:not(.editing) {
+            width:auto;
+            
+        }
+
+        .project-list li.editing {
+            justify-content: flex-start;
+            max-width: 70%;
+            min-width: 191.09px;
+            background-color: #d5dce6;
+            outline-color: #007bffbe;
+            padding: 8px 12px;
+            
+        }
+        
+        .project-list {
+            list-style: none;
+            padding: 0;
+            width: 100%;
+            
+        }
+
+        .project-list li {
+                box-sizing: border-box;
+                width: 100%;
+                min-width: 225px;
+                background-color: #e9ecef;
+                outline: auto;
+                outline-color: #007bff67;
+                padding: 8px 0;
+                margin-bottom: 5px;
+                border-radius: 4px;
+                display: flex;
+                justify-content: flex-start;
+                align-items: center;
+                gap: 10px;
+        }
+
+        .project-list li span.project-card-name {
+            font-weight: bold;
+            flex: 1;
+            min-width: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            padding-left: 10px;
+        }
+
+        .project-list li span.project-card-hrs {
+            flex-shrink: 0;
+            white-space: nowrap;
+        }
+
+        .project-list li span.project-card-group {
+            margin-left: auto;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-shrink: 0;
+            border-radius: 4px 0 0 4px;
+            padding-right: 10px;
+        }
+        .project-list li span.project-card-percent {
+            margin-right: 10px;
+            white-space: nowrap;
+            padding-top: 8px; 
+    padding-bottom: 8px;
+    padding-left: 10px; /* Padding between 'hrs' and '82.50%' */
+        }
+        
+        .project-list li span.project-card-edit {
+            height:38px;
+        }
+
+        .project-list li span.project-card-edit button {
+            padding: .35em;
+        }
+
+        .project-list li span:last-child {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            flex-shrink: 0; /* Prevents shrinking */
+        }
+
+        .chart-container canvas{
+            max-width: 300px;
+            max-height: 300px;
+        }
+        
+        .button-group {
+            display:flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            border-top:1px solid #eee;
+            padding: 10px;
+        }
+
+        .project-list li.editing .delete {
+            margin-left: auto;
+        }
+
+        .project-list li.editing .cancel {
+            min-width: 80px;
+        }
+
+        .project-list li.editing .save {
+            min-width: 76.25px;
+        }
+        
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Project Hours</h1>
+        <div class="form-group">
+            <label for="totalHours">Total Available Hours:</label>
+            <input type="number" id="totalHours" name="totalHours" placeholder="Enter total hours" min="0" value="40">
+        </div>
+
+        <h3>Add Project:</h3>
+        <div class="project-input-group">
+            <div class="project-name-container">
+                <input type="text" id="projectName" placeholder="Project Name">
+            </div>
+            <div class="hours-field-submit-button-container">
+                <input type="number" id="projectHours" placeholder="Hours" min="0">
+                <button id="addProjectBtn">+</button>
+            </div>
+        </div>
+        <div class="summary-section">
+            <div class="summary">
+                <h2>Summary</h2>
+                <p>Total Available Hours: <strong id="summaryTotalHours">0</strong></p>
+                <p>Allocated Hours: <strong id="summaryAllocatedHours">0</strong></p>
+                <p>Remaining Hours: <strong id="summaryRemainingHours">0</strong></p>
+                <div class="project-section">
+                <h3>Projects:</h3>
+                    <ul id="projectList" class="project-list">
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="chart-section">
+            <div class="button-group">
+                <button id="pieBtn">Pie Chart</button>
+                <button id="barBtn">Bar Chart</button>
+            </div>
+            <div class="chart-container">
+                <canvas width="280px" height="280px" id="chartDisplay"></canvas>
+            </div>
+        </div>
+    <div>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    </div>
+
+    <script type="module">
+        /**
+         * @property {string} projectName
+         * @property {number} projectHours
+         * @property {string} id
+        */
+        class Project {
+            /**
+             * @param {string} name
+             * @param {number} hours
+             * @returns {void}
+             */
+            constructor(projectName, projectHours) {
+                this.name = projectName;
+                this.hours = projectHours;
+                this.id = crypto.randomUUID ? crypto.randomUUID() : this.__uuidv4();
+            }
+
+            /**
+             * @returns {string}
+             */
+            __uuidv4() {
+                console.log("Insecure Browser. Generating Local UUID");
+                return ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g, c =>
+                    (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16)
+                );
+            }
+        }
+        /**
+         * @property {Project[]} projects
+         * @propety [ChartManager] chartManager
+        */
+        class ProjectManager {
+            /**
+            * @returns {void}
+             */
+            constructor(){
+                this._projects = []
+                this._editing = false;
+                this.totalHoursInput = document.getElementById('totalHours');
+                this.projectNameInput = document.getElementById('projectName');
+                this.projectHoursInput = document.getElementById('projectHours');
+                this.addProjectBtn = document.getElementById('addProjectBtn');
+                [this.projectNameInput, this.projectHoursInput].forEach(input => {
+                    input.addEventListener('keypress', (e) => {
+                        if (e.key === 'Enter' ) {
+                            addProjectBtn.click();
+                        }
+                    });
+                });
+                this.totalHoursInput.addEventListener('input', () => this.updateSummary());
+                this.addProjectBtn.addEventListener('click', () => {
+                    /** @type {string} */
+                    const projectName = this.projectNameInput.value.trim();
+
+                    /** @type {number} */
+                    const projectHours = Number(this.projectHoursInput.value);
+                    
+                    if (this.createProject(projectName, projectHours)) {
+                        this.projectNameInput.value = '';
+                        this.projectHoursInput.value = '';
+                        return;
+                    } 
+
+                });
+            }
+            validateInput(projectName, projectHours) {
+                projectHours = Number(projectHours);
+                projectName.trim();
+                const projectExists = this._projects.some(p => p.name.toLowerCase() === projectName.toLowerCase())
+                if(projectExists && !this._editing){
+                    alert('Project already exists');
+                    return false;
+                }
+
+                if (!projectName.length > 0){
+                    alert('Please enter a project name');
+                    return false;
+                }
+
+                if (!projectHours > 0 || isNaN(projectHours)){
+                    alert('Please enter project hours');
+                    return false;
+                }
+
+                if (projectHours % 0.25 !== 0) {
+                    alert('Hours may only have decimals in quarter intervals.');
+                    return false;
+                }
+
+                if ((this.projects
+                    .reduce((accumulator, currentValue) => {
+                        return accumulator + currentValue.hours
+                        }, 0) + projectHours) > Number(this.totalHoursInput.value)) {
+                    alert('Hours entered is greater than total allocated hours.');
+                    return false;
+                }
+                 
+                if (projectName.length > 0 && !isNaN(projectHours) && projectHours >= 0) {
+                    return true;
+                }
+            }
+            /**
+             * @param {string} projectName
+             * @param {number} projectHours
+             * @returns {boolean}
+             */
+            createProject(projectName, projectHours) {
+                if (this.validateInput(projectName, projectHours)) {
+                    this._projects.push(new Project(projectName, projectHours));
+                    this.updateSummary(this.chartManager)
+                }
+            }
+            /**
+             * @returns {Project[]}
+             */
+            get projects(){
+                return this._projects
+            }
+
+            set chartManager(chartManager){
+                this._chartManager = chartManager;
+            }
+
+            /**
+             * @param {str} projectId
+             * @returns {void}
+             */
+            editProject(projectId) {
+                const project = this.projects.find(p => p.id === projectId);
+
+                if (!project) {
+                    console.error(`Project with ID ${projectId} not found.`);
+                    return;
+                }
+                this._editing = true;
+                const listItem = document.getElementById(`project-${project.id}`);
+                listItem.classList.add("editing");
+                listItem.innerHTML = `
+                    <div class="edit-group">
+                        <div class="edit-project-name-container">
+                            <input type="text" class="edit-projectName" id="edit-name-${project.id}" value="${project.name}">
+                        </div>
+                        <input type="number" class="edit-projectHours" id="edit-hours-${project.id}" value="${project.hours.toFixed(2)}">
+                        <button class="save">Save</button>
+                        <button class="cancel">Cancel</button>
+                        <button class="delete">Delete</button>
+                    </div>
+                `;
+
+                listItem.querySelector('.save').addEventListener('click', () => {
+                    const projectName = document.getElementById(`edit-name-${project.id}`);
+                    const projectHours = document.getElementById(`edit-hours-${project.id}`);
+                    if(this.validateInput(projectName.value, Number(projectHours.value))) {
+                        project.name = projectName.value;
+                        project.hours = Number(projectHours.value);
+                        this._editing=false;
+                        this.updateSummary();
+                    }
+                });
+                
+                listItem.querySelector('.delete').addEventListener('click', () => {
+                    this.projects.splice(this.projects.indexOf(p => p.id == project.id), 1);
+                    this._editing=false;
+                    this.updateSummary();
+                })
+
+                listItem.querySelector('.cancel').addEventListener('click', () => {
+                    this._editing=false;
+                    this.updateSummary()
+                });
+
+            }
+
+
+            /**
+             * @param {Project} projectId
+             * @returns {void}
+             */
+            updateSummary() {
+                const totalHoursInput = document.getElementById('totalHours');
+                const summaryTotalHours = document.getElementById('summaryTotalHours');
+                const summaryAllocatedHours = document.getElementById('summaryAllocatedHours');
+                const summaryRemainingHours = document.getElementById('summaryRemainingHours');
+                const projectList = document.getElementById('projectList');
+                /**@type {number}*/
+                const totalHours = Number(totalHoursInput.value) || 0;
+                /**@type {number}*/
+                let allocatedHours = 0;
+                
+                this.projects.forEach(project => {
+                    allocatedHours += project.hours;
+                });
+
+                 /**@type {number} */
+                const remainingHours = totalHours - allocatedHours;
+
+                summaryTotalHours.textContent = totalHours.toFixed(2);
+                summaryAllocatedHours.textContent = allocatedHours.toFixed(2);
+                summaryRemainingHours.textContent = remainingHours.toFixed(2);
+
+                // Update project list display
+                projectList.innerHTML = ''; // Clear existing list
+                this.projects.forEach(project => {
+                    const listItem = document.createElement('li');
+                    listItem.innerHTML = `
+                        <span class="project-card-name">${project.name}:</span>
+                        <span class="project-card-hrs">${project.hours.toFixed(2)} hrs</span>
+                        <span class="project-card-group" id="project-card-group">
+                            <span class="project-card-percent">${((project.hours / totalHours) * 100).toFixed(2)}%</span>
+                            <span class="project-card-edit"><button id='project-edit-button'>Edit</button></span>
+                        </span>`
+                    listItem.querySelector('#project-edit-button').addEventListener('click', () => {
+                        this.editProject(project.id);
+                    });
+                    listItem.querySelector('#project-card-group').style.backgroundColor = this.getColorByWeight(project.hours);
+                    listItem.id = `project-${project.id}`;
+                    projectList.appendChild(listItem);
+                });
+                this._chartManager.updateChart();
+            }
+
+            getColorByWeight(value) {
+                const percentage = (value / this.totalHoursInput.value) * 100;
+                
+                // Base color: #007bff is hsl(211, 100%, 50%)
+                const baseHue = 211; // Blue hue
+                
+                // Lightness goes from 95% (very light) to 55% (medium)
+                const lightness = 95 - (percentage * 0.4);
+                
+                // Saturation goes from 20% to 50%
+                const saturation = 20 + (percentage * 0.3);
+                
+                return `hsl(${baseHue}, ${saturation}%, ${lightness}%)`;
+            }
+        }
+        
+
+        class ChartManager {
+            /**
+             * @param {string} canvasId
+             * @param {ProjectManager} projectManager
+             * @returns {void}
+            */
+            constructor(canvasId, projectMananger) {
+                this.chart = null;
+                this.currentChartType = null;
+                this.ctx = document.getElementById(canvasId).getContext('2d');
+                this.projects = [];
+                this.projectManager = projectMananger
+            }
+            /**
+             * @param {string} type
+             * @returns {void}
+             */
+            createChart(type) {
+                if (!this.projectManager.projects.length > 0){
+                    return;
+                }
+                
+                else if (this.chart) {
+                    this.chart.destroy();
+                    this.chart = null;
+                }
+                this.showChart();
+                this.currentChartType = type
+
+                switch(type) {
+                    case 'pie':
+                        this.chart = new Chart(this.ctx, {
+                            type: 'pie',
+                            data: {
+                                labels: this.projectManager.projects.map(p => p.name),
+                                datasets: [{
+                                    label: 'Project Distribution',
+                                    data: this.projectManager.projects.map(p => p.hours),
+                                    backgroundColor: this.projectManager.projects.map(() => 
+                                        `hsl(${Math.floor(Math.random() * 360)}, 70%, 60%)`
+                                    ),
+                                    hoverOffset: 4
+                                }]
+                            },
+                            options: {
+                                responsive: true,
+                                plugins: {
+                                    legend: {
+                                        position: 'right'
+                                    }
+                                }
+                            }
+                        });
+                        break;
+                    case 'bar':
+                        this.chart = new Chart(this.ctx, {
+                            type: 'bar',
+                            data: {
+                                labels: this.projectManager.projects.map(p => p.name),
+                                datasets: [{
+                                    label: 'Project Distribution',
+                                    data: this.projectManager.projects.map(p => p.hours),
+                                    borderWidth: 1
+                                }]
+                            },
+                            options: {
+                                scales: {
+                                    y: { beginAtZero: true }
+                                }
+                            }
+                        });
+                        break;
+                }
+            }
+            /**
+             * @returns {void}
+             */
+            updateChart() {
+                if (!this.chart || !this.currentChartType) return;
+
+                switch(this.currentChartType) {
+                    case 'pie':
+                        this.chart.data.labels = this.projectManager.projects.map(p => p.name);
+                        this.chart.data.datasets[0].data = this.projectManager.projects.map(p => p.hours);
+                        this.chart.data.datasets[0].backgroundColor = this.projectManager.projects.map(() => 
+                            `hsl(${Math.floor(Math.random() * 360)}, 70%, 60%)`
+                        );
+                        this.chart.update();
+                        break;
+                    case 'bar':
+                        this.chart.data.labels = this.projectManager.projects.map(p => p.name);
+                        this.chart.data.datasets[0].data = this.projectManager.projects.map(p => p.hours);
+                        this.chart.update();
+                        break;
+                }
+            }
+            /**
+             * @param {string} type
+             * @returns {void}
+             */
+            switchChart(type) {;
+                this.createChart(type);
+                document.getElementById('pieBtn').classList.toggle('active', type === 'pie');
+                document.getElementById('barBtn').classList.toggle('active', type === 'bar');
+            }
+            /**
+             * @returns {void}
+             */
+            hideChart() {
+                if (this.chart) {
+                    this.chart.destroy();
+                    this.chart = null;
+                    this.currentChartType = null;
+                }
+                
+                const chartContainer = document.querySelector('.chart-container');
+                const buttonGroup = document.querySelector('.button-group');
+                if (buttonGroup) {
+                    buttonGroup.querySelectorAll('button').forEach(btn => {
+                        btn.classList.remove('active');
+                    });
+                }
+                if (chartContainer) {
+                    chartContainer.style.display = 'none';
+                }
+            }
+            /**
+             * @returns {void}
+             */
+            showChart() {
+                const chartContainer = document.querySelector('.chart-container');
+                if (chartContainer) {
+                    chartContainer.style.display = 'block';
+                }
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            
+           
+
+            const projectManager = new ProjectManager()
+            const chartManager = new ChartManager('chartDisplay', projectManager);
+            projectManager.chartManager = chartManager;
+            chartManager.hideChart()
+            document.getElementById('pieBtn').addEventListener('click', () => chartManager.currentChartType != 'pie' ? chartManager.switchChart('pie') : chartManager.hideChart());
+            document.getElementById('barBtn').addEventListener('click', () => chartManager.currentChartType != 'bar' ? chartManager.switchChart('bar') : chartManager.hideChart());
+        });
+    </script>
+</body>
+</html>
