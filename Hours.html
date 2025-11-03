@@ -119,6 +119,7 @@
             box-sizing: border-box;
             border: 1px solid #c5c5c5;
             border-radius: 4px;
+            margin-right: auto;
         }
 
         .edit-projectName {
@@ -205,7 +206,7 @@
             list-style: none;
             padding: 0;
             width: 100%;
-            
+            overflow-y: auto;
         }
 
         .project-list li {
@@ -252,8 +253,8 @@
             margin-right: 10px;
             white-space: nowrap;
             padding-top: 8px; 
-    padding-bottom: 8px;
-    padding-left: 10px; /* Padding between 'hrs' and '82.50%' */
+            padding-bottom: 8px;
+            padding-left: 10px;
         }
         
         .project-list li span.project-card-edit {
@@ -268,7 +269,7 @@
             display: flex;
             align-items: center;
             gap: 5px;
-            flex-shrink: 0; /* Prevents shrinking */
+            flex-shrink: 0;
         }
 
         .chart-container canvas{
@@ -281,7 +282,6 @@
             flex-wrap: wrap;
             gap: 10px;
             border-top:1px solid #eee;
-            padding: 10px;
         }
 
         .project-list li.editing .delete {
@@ -290,6 +290,7 @@
 
         .project-list li.editing .cancel {
             min-width: 80px;
+            margin-right: auto;
         }
 
         .project-list li.editing .save {
@@ -333,6 +334,7 @@
             <div class="button-group">
                 <button id="pieBtn">Pie Chart</button>
                 <button id="barBtn">Bar Chart</button>
+                <button id="seed">Seed</button>
             </div>
             <div class="chart-container">
                 <canvas width="280px" height="280px" id="chartDisplay"></canvas>
@@ -392,7 +394,33 @@
                         }
                     });
                 });
-                this.totalHoursInput.addEventListener('input', () => this.updateSummary());
+                this.totalHoursInput.addEventListener('focusout', (event) => {
+                    const newTotalHours = Number(event.target.value);
+                    const minHoursByExistingProjects = this.projects.reduce((acc, current) => acc + current.hours, 0);
+                    console.log(minHoursByExistingProjects);
+                    if (newTotalHours < minHoursByExistingProjects) {
+                        this.totalHoursInput.value = minHoursByExistingProjects;
+                        alert("Total hours cannot be lower than the currently allocated projects.")
+                    } else {
+                        this.totalHoursInput.min = newTotalHours;
+                        this.updateSummary();
+                    }
+
+                });
+                this.totalHoursInput.addEventListener('keyup', (event) => {
+                    if (event.key === 'Enter') {
+                        const newTotalHours = Number(event.target.value);
+                        const minHoursByExistingProjects = this.projects.reduce((acc, current) => acc + current.hours, 0);
+                        console.log(minHoursByExistingProjects);
+                        if (newTotalHours < minHoursByExistingProjects) {
+                            this.totalHoursInput.value = minHoursByExistingProjects;
+                            alert("Total hours cannot be lower than the currently allocated projects.")
+                        } else {
+                            this.totalHoursInput.min = newTotalHours;
+                            this.updateSummary();
+                        }
+                    }
+                });
                 this.addProjectBtn.addEventListener('click', () => {
                     /** @type {string} */
                     const projectName = this.projectNameInput.value.trim();
@@ -405,9 +433,13 @@
                         this.projectHoursInput.value = '';
                         return;
                     } 
-
                 });
             }
+            /**
+             * @param {string} projectName
+             * @param {number} projectHours
+             * @returns {boolean}
+             */
             validateInput(projectName, projectHours) {
                 projectHours = Number(projectHours);
                 projectName.trim();
@@ -447,12 +479,12 @@
             /**
              * @param {string} projectName
              * @param {number} projectHours
-             * @returns {boolean}
+             * @returns {void}
              */
             createProject(projectName, projectHours) {
                 if (this.validateInput(projectName, projectHours)) {
                     this._projects.push(new Project(projectName, projectHours));
-                    this.updateSummary(this.chartManager)
+                    this.updateSummary()
                 }
             }
             /**
@@ -461,11 +493,13 @@
             get projects(){
                 return this._projects
             }
-
+            /**
+             * @param {ChartManager} chartManager
+             * @returns {void}
+             */
             set chartManager(chartManager){
                 this._chartManager = chartManager;
             }
-
             /**
              * @param {str} projectId
              * @returns {void}
@@ -493,13 +527,17 @@
                 `;
 
                 listItem.querySelector('.save').addEventListener('click', () => {
-                    const projectName = document.getElementById(`edit-name-${project.id}`);
-                    const projectHours = document.getElementById(`edit-hours-${project.id}`);
-                    if(this.validateInput(projectName.value, Number(projectHours.value))) {
-                        project.name = projectName.value;
-                        project.hours = Number(projectHours.value);
+                    const projectNameElement = document.getElementById(`edit-name-${project.id}`);
+                    const projectHoursElement = document.getElementById(`edit-hours-${project.id}`);
+                    const originalHours = project.hours;
+                    project.hours = 0; // Sets it to 0 so that it's not calculated in the validation
+                    if(this.validateInput(projectNameElement.value, Number(projectHoursElement.value))) {
+                        project.name = projectNameElement.value;
+                        project.hours = Number(projectHoursElement.value);
                         this._editing=false;
                         this.updateSummary();
+                    } else { 
+                        project.hours = originalHours;
                     }
                 });
                 
@@ -515,27 +553,24 @@
                 });
 
             }
-
-
             /**
-             * @param {Project} projectId
              * @returns {void}
              */
             updateSummary() {
-                const totalHoursInput = document.getElementById('totalHours');
                 const summaryTotalHours = document.getElementById('summaryTotalHours');
                 const summaryAllocatedHours = document.getElementById('summaryAllocatedHours');
                 const summaryRemainingHours = document.getElementById('summaryRemainingHours');
                 const projectList = document.getElementById('projectList');
                 /**@type {number}*/
-                const totalHours = Number(totalHoursInput.value) || 0;
+                const totalHours = Number(this.totalHoursInput.value) || 0;
                 /**@type {number}*/
-                let allocatedHours = 0;
                 
-                this.projects.forEach(project => {
-                    allocatedHours += project.hours;
-                });
-
+                const allocatedHours = this.projects
+                    .reduce((accumulator, currentValue) => {
+                        return accumulator + currentValue.hours
+                        }, 0);
+                
+                this.totalHoursInput.min = allocatedHours;
                  /**@type {number} */
                 const remainingHours = totalHours - allocatedHours;
 
@@ -543,7 +578,6 @@
                 summaryAllocatedHours.textContent = allocatedHours.toFixed(2);
                 summaryRemainingHours.textContent = remainingHours.toFixed(2);
 
-                // Update project list display
                 projectList.innerHTML = ''; // Clear existing list
                 this.projects.forEach(project => {
                     const listItem = document.createElement('li');
@@ -561,9 +595,17 @@
                     listItem.id = `project-${project.id}`;
                     projectList.appendChild(listItem);
                 });
+                if (projectList.children.length >= 4) {
+                    projectList.style.maxHeight = projectList.offsetHeight + 'px'
+                }
+
+                
                 this._chartManager.updateChart();
             }
-
+            /**
+             * @param {number} value
+             * @returns {string}
+             */
             getColorByWeight(value) {
                 const percentage = (value / this.totalHoursInput.value) * 100;
                 
@@ -580,7 +622,6 @@
             }
         }
         
-
         class ChartManager {
             /**
              * @param {string} canvasId
@@ -593,6 +634,9 @@
                 this.ctx = document.getElementById(canvasId).getContext('2d');
                 this.projects = [];
                 this.projectManager = projectMananger
+                document.getElementById('pieBtn').addEventListener('click', () => this.currentChartType != 'pie' ? this.switchChart('pie') : this.hideChart());
+                document.getElementById('barBtn').addEventListener('click', () => this.currentChartType != 'bar' ? this.switchChart('bar') : this.hideChart());
+                this.hideChart()
             }
             /**
              * @param {string} type
@@ -660,6 +704,10 @@
              */
             updateChart() {
                 if (!this.chart || !this.currentChartType) return;
+                if (!this.projectManager.projects.length > 0) {
+                    this.hideChart();
+                    this.currentChartType = null;
+                }
 
                 switch(this.currentChartType) {
                     case 'pie':
@@ -719,15 +767,16 @@
         }
 
         document.addEventListener('DOMContentLoaded', function() {
-            
-           
-
             const projectManager = new ProjectManager()
             const chartManager = new ChartManager('chartDisplay', projectManager);
             projectManager.chartManager = chartManager;
-            chartManager.hideChart()
-            document.getElementById('pieBtn').addEventListener('click', () => chartManager.currentChartType != 'pie' ? chartManager.switchChart('pie') : chartManager.hideChart());
-            document.getElementById('barBtn').addEventListener('click', () => chartManager.currentChartType != 'bar' ? chartManager.switchChart('bar') : chartManager.hideChart());
+            const seedButton = document.getElementById('seed');
+            seed.addEventListener('click', function() {
+                    projectManager.createProject('Arc-Transit', 10);
+                    projectManager.createProject('APS', 10);
+                    projectManager.createProject('Culture-Index', 20);
+                    this.remove();
+            })
         });
     </script>
 </body>
