@@ -6,9 +6,19 @@
     <title>Hour Distribution</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
+            font-family: Euclid Circular A, Arial, sans-serif;
             margin: 20px;
             background-color: #f4f4f4;
+        }
+
+        div .app-header {
+            display:flex;
+            flex-direction: row;
+        }
+
+        div.app-header svg#ps-logo {
+            max-width: 30%;
+            height: auto;
         }
 
         .container {
@@ -18,6 +28,10 @@
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
             max-width: 500px;
             margin: auto;
+        }
+
+        .container h1#header {
+            margin-top: 0px !important;
         }
 
         .form-group {
@@ -51,6 +65,16 @@
             border-radius: 4px;
             cursor: pointer;
             font-size: 16px;
+            font-family: inherit;
+        }
+
+        button#addProjectBtn {
+            font-size: 20pt;
+            max-height: 38px;
+            display: flex; 
+            justify-content: center;
+            line-height: 16px;
+            max-width:  38px;
         }
 
         button:hover {
@@ -72,8 +96,8 @@
             /* display:flex; */
             flex-direction: row;
             align-items: start;
-            margin-top: 30px;
-            padding-top: 20px;
+            padding-top: 10px;
+            padding-bottom: 10px;
             border-top: 1px solid #eee;
         }
 
@@ -114,7 +138,7 @@
         .edit-projectHours {
             padding: .5em 1em;
             width: auto;
-            max-width: 80px;
+            max-width: 85px;
             height: 38px;
             box-sizing: border-box;
             border: 1px solid #c5c5c5;
@@ -196,8 +220,9 @@
             justify-content: flex-start;
             max-width: 70%;
             min-width: 191.09px;
-            background-color: #d5dce6;
-            outline-color: #007bffbe;
+            border-style: dotted;
+            border-width: 3px;
+            border-color: #007bffb6; 
             padding: 8px 12px;
             
         }
@@ -214,8 +239,9 @@
                 width: 100%;
                 min-width: 225px;
                 background-color: #e9ecef;
-                outline: auto;
-                outline-color: #007bff67;
+                border-style: solid;
+                border-width: 3px;
+                border-color: #007bff67;
                 padding: 8px 0;
                 margin-bottom: 5px;
                 border-radius: 4px;
@@ -283,26 +309,90 @@
             gap: 10px;
             border-top:1px solid #eee;
             padding-top: 10px;
+            padding-bottom: 10px;
         }
 
         .project-list li.editing .delete {
             margin-left: auto;
+            min-width: 80px;
         }
 
         .project-list li.editing .cancel {
-            min-width: 80px;
+            min-width: 85px;
             margin-right: auto;
         }
 
         .project-list li.editing .save {
-            min-width: 76.25px;
+            min-width: 80px;
         }
         
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Project Hours</h1>
+    <div id='app' class="container resizable">
+        <div class="resize-handle"></div>
+        <div class="app-header">
+        <date-display></date-display>
+        <svg id="ps-logo" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 164.85 30.63">
+            <defs>
+                <style>.cls-1{fill:#fff;}.cls-1,.cls-2{fill-rule:evenodd;}.cls-2{fill:#0f3873;}.cls-3{mask:url(#mask);}.cls-4{mask:url(#mask-2-2);}</style>
+                <mask id="mask" x="0" y="0" width="30.38" height="30.63" maskUnits="userSpaceOnUse">
+                    <g id="mask-2">
+                        <polygon id="path-1" class="cls-1" points="0 0 30.38 0 30.38 30.63 0 30.63 0 0"></polygon>
+                    </g>
+                </mask>
+                <mask id="mask-2-2" x="0" y="0" width="164.85" height="30.63" maskUnits="userSpaceOnUse">
+                    <g id="mask-4">
+                        <polygon id="path-3" class="cls-1" points="0 30.63 164.85 30.63 164.85 0 0 0 0 30.63"></polygon>
+                    </g>
+                </mask>
+            </defs>
+            <g id="Layer_2" data-name="Layer 2">
+                <g id="Layer_1-2" data-name="Layer 1">
+                    <g id="Page-1">
+                        <g id="Main-Home">
+                        <g id="Group-26">
+                            <path id="Fill-1" class="cls-2" d="M18.1,7.88l-.4,3.53a.29.29,0,0,0,.08.23l3.93,4.23a.29.29,0,0,1,0,.4l-4.62,4.37a.37.37,0,0,0-.08.18l-.41,3.55a.25.25,0,0,0,.41.24l9-8.34a.29.29,0,0,0,0-.4L18.52,7.72a.24.24,0,0,0-.42.16"></path>
+                            <g id="Group-5">
+                                <g class="cls-3">
+                                    <path id="Fill-3" class="cls-2" d="M2.78,16.44a14,14,0,0,1,27.38-3.92.11.11,0,1,0,.21,0A15.32,15.32,0,1,0,13.44,30.53c.19-1-.15.81,0-.22A14,14,0,0,1,2.78,16.44"></path>
+                                </g>
+                            </g>
+                            <path id="Fill-6" class="cls-2" d="M9.71,20.64a.31.31,0,0,0-.09.18l-.4,3.55a.25.25,0,0,0,.4.24l7.5-6.94H12.84Z"></path>
+                            <path id="Fill-8" class="cls-2" d="M11.14,7.72a.24.24,0,0,0-.42.16l-.39,3.53a.28.28,0,0,0,.07.23l2.79,3h4.33Z"></path>
+                            <path id="Fill-10" class="cls-2" d="M41.63,14.38c1.51,0,2.32-.71,2.32-2.06v-.09c0-1.4-.83-2-2.3-2H40.28v4.13Zm-6-7.66h6.24c4.49,0,6.58,2,6.58,5.48v.09c0,3.44-2.32,5.3-6.38,5.3H40.28v5.53H35.6Z"></path>
+                            <path id="Fill-12" class="cls-2" d="M48.65,17.91h4.47c.11,1.17.64,2.14,2.59,2.14,1.35,0,2.11-.67,2.11-1.63s-.62-1.29-2.59-1.58C50.6,16.28,49,14.91,49,11.61c0-3,2.43-5.12,6.35-5.12s6.17,1.65,6.47,5.12H57.5a1.87,1.87,0,0,0-2.11-1.77c-1.26,0-1.9.57-1.9,1.4S54,12.57,56,12.85c4.15.45,6.29,1.53,6.29,5.09,0,3-2.39,5.45-6.61,5.45-4.59,0-6.92-1.92-7.06-5.48"></path>
+                            <path id="Fill-14" class="cls-2" d="M66.31,17.91h4.47c.11,1.17.64,2.14,2.59,2.14,1.35,0,2.11-.67,2.11-1.63s-.62-1.29-2.59-1.58c-4.64-.56-6.19-1.93-6.19-5.23,0-3,2.43-5.12,6.35-5.12s6.17,1.65,6.46,5.12H75.16a1.87,1.87,0,0,0-2.11-1.77c-1.26,0-1.91.57-1.91,1.4s.51,1.33,2.55,1.61c4.15.45,6.28,1.53,6.28,5.09,0,3-2.38,5.45-6.6,5.45-4.59,0-6.93-1.92-7.06-5.48"></path>
+                            <path id="Fill-16" class="cls-2" d="M89.4,17.2V17c0-2-.8-3.14-2.36-3.14S84.65,15,84.65,17v.19c0,2.06.8,3.18,2.39,3.18S89.4,19.2,89.4,17.2m-9,.07v-.18c0-3.86,2.87-6.29,6.59-6.29s6.53,2.37,6.53,6.17v.19c0,3.9-2.86,6.23-6.56,6.23s-6.56-2.24-6.56-6.12"></path>
+                            <g class="cls-4">
+                                <polygon id="Fill-18" class="cls-2" points="94.63 23.12 98.71 23.12 98.71 5.85 94.63 5.85 94.63 23.12"></polygon>
+                            </g>
+                            <g class="cls-4">
+                                <path id="Fill-20" class="cls-2" d="M100.31,18.94V11.12h4.11v7.16c0,1.35.53,2,1.7,2s2-.74,2-2.27V11.12h4.1v12h-4.1V21.26a4,4,0,0,1-3.81,2.13c-2.32,0-4-1.42-4-4.45"></path>
+                            </g>
+                            <g class="cls-4">
+                                <path id="Fill-21" class="cls-2" d="M114.39,19.27V13.92H113v-2.8h1.44V8.63h4.11v2.49h2.36v2.8H118.5v5a1.09,1.09,0,0,0,1.21,1.26,3.05,3.05,0,0,0,1.17-.21v3.12a8.44,8.44,0,0,1-2.27.34c-2.7,0-4.22-1.3-4.22-4.12"></path>
+                            </g>
+                            <g class="cls-4">
+                                <path id="Fill-22" class="cls-2" d="M122,23.12h4.11v-12H122Zm-.21-15.25A2.27,2.27,0,1,1,124.07,10a2.14,2.14,0,0,1-2.25-2.11Z"></path>
+                            </g>
+                            <g class="cls-4">
+                                <path id="Fill-23" class="cls-2" d="M136.13,17.2V17c0-2-.8-3.14-2.36-3.14S131.39,15,131.39,17v.19c0,2.06.8,3.18,2.38,3.18s2.36-1.14,2.36-3.14m-8.94.07v-.18c0-3.86,2.87-6.29,6.58-6.29s6.54,2.37,6.54,6.17v.19c0,3.9-2.87,6.23-6.56,6.23s-6.56-2.24-6.56-6.12"></path>
+                            </g>
+                            <g class="cls-4">
+                                <path id="Fill-24" class="cls-2" d="M141.25,11.12h4.1v1.93a4.24,4.24,0,0,1,4-2.25c2.31,0,3.92,1.45,3.92,4.52v7.8h-4.11v-7c0-1.36-.52-2-1.72-2s-2,.73-2,2.27v6.72h-4.1Z"></path>
+                            </g>
+                            <g class="cls-4">
+                                <path id="Fill-25" class="cls-2" d="M153.91,19.31h3.78c.14.87.53,1.36,1.7,1.36,1,0,1.47-.39,1.47-1s-.58-.85-2.23-1.08c-3.21-.41-4.56-1.35-4.56-3.85,0-2.66,2.36-3.95,5.14-3.95,2.95,0,5,1,5.29,3.88h-3.71a1.34,1.34,0,0,0-1.54-1.19c-.89,0-1.35.39-1.35.94s.55.8,2,1c3.32.42,4.93,1.29,4.93,3.86,0,2.84-2.11,4.12-5.44,4.12S154,22,153.91,19.31"></path>
+                            </g>
+                        </g>
+                        </g>
+                    </g>
+                </g>
+            </g>
+        </svg> 
+        </div>
+        <h1 id="header">Project Hours</h1>
         <div class="form-group">
             <label for="totalHours">Total Available Hours:</label>
             <input type="number" id="totalHours" name="totalHours" placeholder="Enter total hours" min="0" value="40">
@@ -318,17 +408,17 @@
                 <button id="addProjectBtn">+</button>
             </div>
         </div>
+        <div class="project-section">
+                    <h3>Projects:</h3>
+                    <ul id="projectList" class="project-list"></ul>
+                </div>
         <div class="summary-section">
             <div class="summary">
                 <h2>Summary</h2>
                 <p>Total Available Hours: <strong id="summaryTotalHours">0</strong></p>
                 <p>Allocated Hours: <strong id="summaryAllocatedHours">0</strong></p>
                 <p>Remaining Hours: <strong id="summaryRemainingHours">0</strong></p>
-                <div class="project-section">
-                <h3>Projects:</h3>
-                    <ul id="projectList" class="project-list">
-                    </ul>
-                </div>
+                
             </div>
         </div>
         <div class="chart-section">
@@ -342,9 +432,42 @@
             </div>
         </div>
     <div>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.cdnfonts.com/css/euclid-circular-a" rel="stylesheet">
+    </div>
+    <style>
+    .resizable {
+        position: relative;
+        min-height: fit-content;
+        border: 1px solid #ccc;
+        padding: 20px;
+        min-width: 293px;
+    }
+        
+    .resize-handle {
+        position: absolute;
+        bottom: 0;
+        right: 0;
+        width: 15px;
+        height: 15px;
+        border-width: 3px;
+        border-style: solid;
+        border-color:#007bff;
+        border-radius: 3px 0px 0px 0px;
+        background-color: hsla(211, 77%, 79%, 0.322);
+        background-image: url('https://cdn4.iconfinder.com/data/icons/materia-flat-arrows-symbols-vol-1/24/018_035_arrow_resize_window-512.png');
+        background-repeat: no-repeat;
+        background-size: contain;
+        background-position: center;
+        cursor: se-resize;
+    }
+    @media (max-width: 768px) {
+        .resize-handle {
+            display:none
+        }
+    }
+    </style>
     <script type="module">
         /**
          * @property {string} projectName
@@ -373,10 +496,30 @@
                 );
             }
         }
-        /**
-         * @property {Project[]} projects
-         * @propety [ChartManager] chartManager
-        */
+
+        class DateDisplay extends HTMLElement {
+            constructor() {
+                super();
+                this._week = this.getWeek()
+                this.textContent = `Week Of: ${this._week.start} - ${this._week.end}`;
+                this.style.fontSize = ".70em";
+                this.style.fontFamily = "Euclid Circular A, sans-serif";
+                this.style.alignSelf = "end";
+                this.style.flex = 1;
+            }
+            
+            getWeek(date=new Date()) {
+                const start = new Date(date);
+                start.setDate(date.getDate() - date.getDay());
+                const end = new Date(date);
+                end.setDate(date.getDate() + (6 - date.getDay()));
+                const options = { month: 'short', day: 'numeric', year: 'numeric' };
+                return {
+                    start: start.toLocaleDateString('en-US', options),
+                    end: end.toLocaleDateString('en-US', options)
+                };
+            }
+        }
 
         class Observer{
             /**
@@ -829,11 +972,46 @@
             }
         }
 
+        class DragWindow {
+            constructor() {
+                this.resizeHandleElement = document.querySelector('.resize-handle');
+                this.resizableElement = document.querySelector('.resizable');
+
+                this.isDragging = false;
+
+                this.resizeHandleElement.addEventListener('mousedown', (e) => {
+                    e.preventDefault(); // stop text selection
+                    this.isDragging = true;
+                    this.startX = e.clientX;
+                    this.startY = e.clientY;
+                    this.startWidth = parseInt(getComputedStyle(this.resizableElement).width, 10);
+                    this.startHeight = parseInt(getComputedStyle(this.resizableElement).height, 10);
+              
+                });
+
+                document.addEventListener('mousemove', (e) => {
+                    if (this.isDragging) {
+                        const dx = e.clientX - this.startX;
+                        const dy = e.clientY - this.startY;
+                        this.resizableElement.style.width = (this.startWidth + dx) + 'px';
+                        this.resizableElement.style.height = (this.startHeight + dy) + 'px';
+                    }
+                });
+
+                document.addEventListener('mouseup', () => {
+                    this.isDragging = false;
+                  
+                });
+            }
+        }
+        
         document.addEventListener('DOMContentLoaded', function() {
+            customElements.define('date-display', DateDisplay)
             const projectManager = new ProjectManager()
             const chartManager = new ChartManager('chartDisplay');
             projectManager.subscribe(chartManager);
             const seedButton = document.getElementById('seed');
+            const dragWindow = new DragWindow();
             seed.addEventListener('click', function() {
                     projectManager.createProject('Arc-Transit', 10);
                     projectManager.createProject('APS', 10);
