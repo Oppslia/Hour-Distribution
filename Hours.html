@@ -282,6 +282,7 @@
             flex-wrap: wrap;
             gap: 10px;
             border-top:1px solid #eee;
+            padding-top: 10px;
         }
 
         .project-list li.editing .delete {
@@ -376,65 +377,127 @@
          * @property {Project[]} projects
          * @propety [ChartManager] chartManager
         */
-        class ProjectManager {
+
+        class Observer{
+            /**
+             * @param {any} data - The data payload sent by the Subject.
+             * @returns {void}
+             */
+            update(data) {
+                throw new Error('Observer.update() must be implemented by concrete subclasses.');
+            }
+        }
+
+        class Subject {
+            constructor() {
+                this._observers = []; 
+            }
+
+            /**
+             * Allows an Observer to subscribe to data changes.
+             * @param {Observer} observer - An instance of a class extending Observer.
+             * @returns {void}
+             */
+            subscribe(observer) {
+                if (observer instanceof Observer) {
+                    this._observers.push(observer);
+                } else {
+                    console.error("Subscription failed: Object must be an instance of Observer.");
+                }
+            }
+            
+            /**
+             * Notifies all subscribed Observers of a change.
+             * @param {any} data - The data payload to send to observers.
+             * @returns {void}
+             */
+
+            notifyObservers(data) {
+                console.log(data)
+                this._observers.forEach(observer => {
+                    try {
+                        observer.update(data);
+                    } catch (e) {
+                        console.error(`Error notifying observer: ${e.message}`);
+                    }
+                }); 
+            }
+        }
+
+        class ProjectManager extends Subject {
             /**
             * @returns {void}
              */
             constructor(){
-                this._projects = []
+                super();
+                this._projects = [];
                 this._editing = false;
-                this.totalHoursInput = document.getElementById('totalHours');
-                this.projectNameInput = document.getElementById('projectName');
-                this.projectHoursInput = document.getElementById('projectHours');
-                this.addProjectBtn = document.getElementById('addProjectBtn');
-                [this.projectNameInput, this.projectHoursInput].forEach(input => {
+                this._totalHoursInput = document.getElementById('totalHours');
+                this._projectNameInput = document.getElementById('projectName');
+                this._projectHoursInput = document.getElementById('projectHours');
+                this._addProjectBtn = document.getElementById('addProjectBtn');
+                this._totalAvailableHours = Number(this._totalHoursInput.value);
+                this._totalHoursInput.min = Number(this._totalHoursInput.value);
+                [this._projectNameInput, this._projectHoursInput].forEach(input => {
                     input.addEventListener('keypress', (e) => {
                         if (e.key === 'Enter' ) {
-                            addProjectBtn.click();
+                            this._addProjectBtn.click();
                         }
                     });
                 });
-                this.totalHoursInput.addEventListener('focusout', (event) => {
+                this._totalHoursInput.addEventListener('focusout', (event) => {
                     const newTotalHours = Number(event.target.value);
-                    const minHoursByExistingProjects = this.projects.reduce((acc, current) => acc + current.hours, 0);
+                    console.log(this._totalAvailableHours, newTotalHours)
+                    if(this._totalAvailableHours == newTotalHours) {
+                        return
+                    }
+
+                    const minHoursByExistingProjects = this._projects.reduce((acc, current) => acc + current.hours, 0);
                     console.log(minHoursByExistingProjects);
                     if (newTotalHours < minHoursByExistingProjects) {
-                        this.totalHoursInput.value = minHoursByExistingProjects;
+                        this._totalHoursInput.value = minHoursByExistingProjects;
                         alert("Total hours cannot be lower than the currently allocated projects.")
                     } else {
-                        this.totalHoursInput.min = newTotalHours;
+                        this._totalHoursInput.min = newTotalHours;
+                        this._totalAvailableHours = this._totalHoursInput.value;
                         this.updateSummary();
                     }
 
                 });
-                this.totalHoursInput.addEventListener('keyup', (event) => {
+                this._totalHoursInput.addEventListener('keyup', (event) => {
+                    console.log(event.key)
                     if (event.key === 'Enter') {
                         const newTotalHours = Number(event.target.value);
-                        const minHoursByExistingProjects = this.projects.reduce((acc, current) => acc + current.hours, 0);
-                        console.log(minHoursByExistingProjects);
+                        if(this._totalAvailableHours == newTotalHours) {
+                            return
+                        }
+
+                        const minHoursByExistingProjects = this._projects.reduce((acc, current) => acc + current.hours, 0);
                         if (newTotalHours < minHoursByExistingProjects) {
-                            this.totalHoursInput.value = minHoursByExistingProjects;
+                            this._totalHoursInput.value = minHoursByExistingProjects;
                             alert("Total hours cannot be lower than the currently allocated projects.")
                         } else {
-                            this.totalHoursInput.min = newTotalHours;
+                            this._totalHoursInput.min = newTotalHours;
+                            this._totalAvailableHours = this._totalHoursInput.value;
                             this.updateSummary();
                         }
                     }
                 });
-                this.addProjectBtn.addEventListener('click', () => {
+                this._addProjectBtn.addEventListener('click', () => {
                     /** @type {string} */
-                    const projectName = this.projectNameInput.value.trim();
+                    const projectName = this._projectNameInput.value.trim();
 
                     /** @type {number} */
-                    const projectHours = Number(this.projectHoursInput.value);
+                    const projectHours = Number(this._projectHoursInput.value);
                     
                     if (this.createProject(projectName, projectHours)) {
-                        this.projectNameInput.value = '';
-                        this.projectHoursInput.value = '';
+                        this._projectNameInput.value = '';
+                        this._projectHoursInput.value = '';
                         return;
                     } 
                 });
             }
+            
             /**
              * @param {string} projectName
              * @param {number} projectHours
@@ -464,10 +527,10 @@
                     return false;
                 }
 
-                if ((this.projects
+                if ((this._projects
                     .reduce((accumulator, currentValue) => {
                         return accumulator + currentValue.hours
-                        }, 0) + projectHours) > Number(this.totalHoursInput.value)) {
+                        }, 0) + projectHours) > Number(this._totalHoursInput.value)) {
                     alert('Hours entered is greater than total allocated hours.');
                     return false;
                 }
@@ -488,30 +551,18 @@
                 }
             }
             /**
-             * @returns {Project[]}
-             */
-            get projects(){
-                return this._projects
-            }
-            /**
-             * @param {ChartManager} chartManager
-             * @returns {void}
-             */
-            set chartManager(chartManager){
-                this._chartManager = chartManager;
-            }
-            /**
              * @param {str} projectId
              * @returns {void}
              */
             editProject(projectId) {
-                const project = this.projects.find(p => p.id === projectId);
+                const project = this._projects.find(p => p.id === projectId);
 
                 if (!project) {
                     console.error(`Project with ID ${projectId} not found.`);
                     return;
                 }
                 this._editing = true;
+                this._totalHoursInput.readOnly = true;
                 const listItem = document.getElementById(`project-${project.id}`);
                 listItem.classList.add("editing");
                 listItem.innerHTML = `
@@ -535,6 +586,7 @@
                         project.name = projectNameElement.value;
                         project.hours = Number(projectHoursElement.value);
                         this._editing=false;
+                        this._totalHoursInput.readOnly = false;
                         this.updateSummary();
                     } else { 
                         project.hours = originalHours;
@@ -542,13 +594,15 @@
                 });
                 
                 listItem.querySelector('.delete').addEventListener('click', () => {
-                    this.projects.splice(this.projects.indexOf(p => p.id == project.id), 1);
+                    this._projects.splice(this._projects.indexOf(p => p.id == project.id), 1);
                     this._editing=false;
+                    this._totalHoursInput.readOnly = false;
                     this.updateSummary();
                 })
 
                 listItem.querySelector('.cancel').addEventListener('click', () => {
                     this._editing=false;
+                    this._totalHoursInput.readOnly = false;
                     this.updateSummary()
                 });
 
@@ -562,15 +616,13 @@
                 const summaryRemainingHours = document.getElementById('summaryRemainingHours');
                 const projectList = document.getElementById('projectList');
                 /**@type {number}*/
-                const totalHours = Number(this.totalHoursInput.value) || 0;
+                const totalHours = Number(this._totalHoursInput.value) || 0;
                 /**@type {number}*/
                 
-                const allocatedHours = this.projects
+                const allocatedHours = this._projects
                     .reduce((accumulator, currentValue) => {
                         return accumulator + currentValue.hours
                         }, 0);
-                
-                this.totalHoursInput.min = allocatedHours;
                  /**@type {number} */
                 const remainingHours = totalHours - allocatedHours;
 
@@ -579,7 +631,7 @@
                 summaryRemainingHours.textContent = remainingHours.toFixed(2);
 
                 projectList.innerHTML = ''; // Clear existing list
-                this.projects.forEach(project => {
+                this._projects.forEach(project => {
                     const listItem = document.createElement('li');
                     listItem.innerHTML = `
                         <span class="project-card-name">${project.name}:</span>
@@ -600,14 +652,14 @@
                 }
 
                 
-                this._chartManager.updateChart();
+                this.notifyObservers(this._projects);
             }
             /**
              * @param {number} value
              * @returns {string}
              */
             getColorByWeight(value) {
-                const percentage = (value / this.totalHoursInput.value) * 100;
+                const percentage = (value / this._totalHoursInput.value) * 100;
                 
                 // Base color: #007bff is hsl(211, 100%, 50%)
                 const baseHue = 211; // Blue hue
@@ -622,28 +674,38 @@
             }
         }
         
-        class ChartManager {
+        class ChartManager extends Observer {
             /**
              * @param {string} canvasId
-             * @param {ProjectManager} projectManager
              * @returns {void}
             */
-            constructor(canvasId, projectMananger) {
+            constructor(canvasId) {
+                super();
                 this.chart = null;
                 this.currentChartType = null;
                 this.ctx = document.getElementById(canvasId).getContext('2d');
                 this.projects = [];
-                this.projectManager = projectMananger
+                // this.projectManager = projectMananger
                 document.getElementById('pieBtn').addEventListener('click', () => this.currentChartType != 'pie' ? this.switchChart('pie') : this.hideChart());
                 document.getElementById('barBtn').addEventListener('click', () => this.currentChartType != 'bar' ? this.switchChart('bar') : this.hideChart());
                 this.hideChart()
+            }
+            /**
+             * @override
+             * This method is called by the ProjectManager (Subject).
+             * @param {Project[]} projects - The latest project data.
+             * @returns {void}
+             */
+            update(projects) { 
+                this.projects = projects;
+                this.updateChart();
             }
             /**
              * @param {string} type
              * @returns {void}
              */
             createChart(type) {
-                if (!this.projectManager.projects.length > 0){
+                if (!this.projects || !this.projects.length > 0){
                     return;
                 }
                 
@@ -651,6 +713,7 @@
                     this.chart.destroy();
                     this.chart = null;
                 }
+
                 this.showChart();
                 this.currentChartType = type
 
@@ -659,11 +722,11 @@
                         this.chart = new Chart(this.ctx, {
                             type: 'pie',
                             data: {
-                                labels: this.projectManager.projects.map(p => p.name),
+                                labels: this.projects.map(p => p.name),
                                 datasets: [{
                                     label: 'Project Distribution',
-                                    data: this.projectManager.projects.map(p => p.hours),
-                                    backgroundColor: this.projectManager.projects.map(() => 
+                                    data: this.projects.map(p => p.hours),
+                                    backgroundColor: this.projects.map(() => 
                                         `hsl(${Math.floor(Math.random() * 360)}, 70%, 60%)`
                                     ),
                                     hoverOffset: 4
@@ -683,10 +746,10 @@
                         this.chart = new Chart(this.ctx, {
                             type: 'bar',
                             data: {
-                                labels: this.projectManager.projects.map(p => p.name),
+                                labels: this.projects.map(p => p.name),
                                 datasets: [{
                                     label: 'Project Distribution',
-                                    data: this.projectManager.projects.map(p => p.hours),
+                                    data: this.projects.map(p => p.hours),
                                     borderWidth: 1
                                 }]
                             },
@@ -704,23 +767,23 @@
              */
             updateChart() {
                 if (!this.chart || !this.currentChartType) return;
-                if (!this.projectManager.projects.length > 0) {
+                if (!this.projects.length > 0) {
                     this.hideChart();
                     this.currentChartType = null;
                 }
 
                 switch(this.currentChartType) {
                     case 'pie':
-                        this.chart.data.labels = this.projectManager.projects.map(p => p.name);
-                        this.chart.data.datasets[0].data = this.projectManager.projects.map(p => p.hours);
-                        this.chart.data.datasets[0].backgroundColor = this.projectManager.projects.map(() => 
+                        this.chart.data.labels = this.projects.map(p => p.name);
+                        this.chart.data.datasets[0].data = this.projects.map(p => p.hours);
+                        this.chart.data.datasets[0].backgroundColor = this.projects.map(() => 
                             `hsl(${Math.floor(Math.random() * 360)}, 70%, 60%)`
                         );
                         this.chart.update();
                         break;
                     case 'bar':
-                        this.chart.data.labels = this.projectManager.projects.map(p => p.name);
-                        this.chart.data.datasets[0].data = this.projectManager.projects.map(p => p.hours);
+                        this.chart.data.labels = this.projects.map(p => p.name);
+                        this.chart.data.datasets[0].data = this.projects.map(p => p.hours);
                         this.chart.update();
                         break;
                 }
@@ -768,8 +831,8 @@
 
         document.addEventListener('DOMContentLoaded', function() {
             const projectManager = new ProjectManager()
-            const chartManager = new ChartManager('chartDisplay', projectManager);
-            projectManager.chartManager = chartManager;
+            const chartManager = new ChartManager('chartDisplay');
+            projectManager.subscribe(chartManager);
             const seedButton = document.getElementById('seed');
             seed.addEventListener('click', function() {
                     projectManager.createProject('Arc-Transit', 10);
