@@ -500,7 +500,7 @@
         class DateDisplay extends HTMLElement {
             constructor() {
                 super();
-                this._week = this.getWeek()
+                this._week = this.getWeek();
                 this.textContent = `Week Of: ${this._week.start} - ${this._week.end}`;
                 this.style.fontSize = ".70em";
                 this.style.fontFamily = "Euclid Circular A, sans-serif";
@@ -590,13 +590,13 @@
                 this._totalHoursInput.addEventListener('focusout', (event) => {
                     const newTotalHours = Number(event.target.value);
                     if(this._totalAvailableHours == newTotalHours) {
-                        return
+                        return;
                     }
 
                     const minHoursByExistingProjects = this._projects.reduce((acc, current) => acc + current.hours, 0);
                     if (newTotalHours < minHoursByExistingProjects) {
                         this._totalHoursInput.value = minHoursByExistingProjects;
-                        alert("Total hours cannot be lower than the currently allocated projects.")
+                        alert("Total hours cannot be lower than the currently allocated projects.");
                     } else {
                         this._totalHoursInput.min = newTotalHours;
                         this._totalAvailableHours = this._totalHoursInput.value;
@@ -608,13 +608,13 @@
                     if (event.key === 'Enter') {
                         const newTotalHours = Number(event.target.value);
                         if(this._totalAvailableHours == newTotalHours) {
-                            return
+                            return;
                         }
 
                         const minHoursByExistingProjects = this._projects.reduce((acc, current) => acc + current.hours, 0);
                         if (newTotalHours < minHoursByExistingProjects) {
                             this._totalHoursInput.value = minHoursByExistingProjects;
-                            alert("Total hours cannot be lower than the currently allocated projects.")
+                            alert("Total hours cannot be lower than the currently allocated projects.");
                         } else {
                             this._totalHoursInput.min = newTotalHours;
                             this._totalAvailableHours = this._totalHoursInput.value;
@@ -668,7 +668,7 @@
 
                 if ((this._projects
                     .reduce((accumulator, currentValue) => {
-                        return accumulator + currentValue.hours
+                        return accumulator + currentValue.hours;
                         }, 0) + projectHours) > Number(this._totalHoursInput.value)) {
                     alert('Hours entered is greater than total allocated hours.');
                     return false;
@@ -686,7 +686,7 @@
             createProject(projectName, projectHours) {
                 if (this.validateInput(projectName, projectHours)) {
                     this._projects.push(new Project(projectName, projectHours));
-                    this.updateSummary()
+                    this.updateSummary();
                 }
             }
             /**
@@ -742,7 +742,7 @@
                 listItem.querySelector('.cancel').addEventListener('click', () => {
                     this._editing=false;
                     this._totalHoursInput.readOnly = false;
-                    this.updateSummary()
+                    this.updateSummary();
                 });
 
             }
@@ -760,7 +760,7 @@
                 
                 const allocatedHours = this._projects
                     .reduce((accumulator, currentValue) => {
-                        return accumulator + currentValue.hours
+                        return accumulator + currentValue.hours;
                         }, 0);
                  /**@type {number} */
                 const remainingHours = totalHours - allocatedHours;
@@ -778,7 +778,7 @@
                         <span class="project-card-group" id="project-card-group">
                             <span class="project-card-percent">${((project.hours / totalHours) * 100).toFixed(2)}%</span>
                             <span class="project-card-edit"><button id='project-edit-button'>Edit</button></span>
-                        </span>`
+                        </span>`;
                     listItem.querySelector('#project-edit-button').addEventListener('click', () => {
                         this.editProject(project.id);
                     });
@@ -787,7 +787,7 @@
                     projectList.appendChild(listItem);
                 });
                 if (projectList.children.length >= 4) {
-                    projectList.style.maxHeight = projectList.offsetHeight + 'px'
+                    projectList.style.maxHeight = projectList.offsetHeight + 'px';
                 }
 
                 
@@ -827,7 +827,7 @@
                 // this.projectManager = projectMananger
                 document.getElementById('pieBtn').addEventListener('click', () => this.currentChartType != 'pie' ? this.switchChart('pie') : this.hideChart());
                 document.getElementById('barBtn').addEventListener('click', () => this.currentChartType != 'bar' ? this.switchChart('bar') : this.hideChart());
-                this.hideChart()
+                this.hideChart();
             }
             /**
              * @override
@@ -854,7 +854,7 @@
                 }
 
                 this.showChart();
-                this.currentChartType = type
+                this.currentChartType = type;
 
                 switch(type) {
                     case 'pie':
@@ -1002,8 +1002,8 @@
         }
         
         document.addEventListener('DOMContentLoaded', function() {
-            customElements.define('date-display', DateDisplay)
-            const projectManager = new ProjectManager()
+            customElements.define('date-display', DateDisplay);
+            const projectManager = new ProjectManager();
             const chartManager = new ChartManager('chartDisplay');
             projectManager.subscribe(chartManager);
             const seedButton = document.getElementById('seed');
