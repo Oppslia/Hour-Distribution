@@ -556,7 +556,6 @@
              */
 
             notifyObservers(data) {
-                console.log(data)
                 this._observers.forEach(observer => {
                     try {
                         observer.update(data);
@@ -590,13 +589,11 @@
                 });
                 this._totalHoursInput.addEventListener('focusout', (event) => {
                     const newTotalHours = Number(event.target.value);
-                    console.log(this._totalAvailableHours, newTotalHours)
                     if(this._totalAvailableHours == newTotalHours) {
                         return
                     }
 
                     const minHoursByExistingProjects = this._projects.reduce((acc, current) => acc + current.hours, 0);
-                    console.log(minHoursByExistingProjects);
                     if (newTotalHours < minHoursByExistingProjects) {
                         this._totalHoursInput.value = minHoursByExistingProjects;
                         alert("Total hours cannot be lower than the currently allocated projects.")
@@ -608,7 +605,6 @@
 
                 });
                 this._totalHoursInput.addEventListener('keyup', (event) => {
-                    console.log(event.key)
                     if (event.key === 'Enter') {
                         const newTotalHours = Number(event.target.value);
                         if(this._totalAvailableHours == newTotalHours) {
